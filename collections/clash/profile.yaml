@@ -1,0 +1,183 @@
+mixed-port: 7890
+ipv6: true
+mode: rule
+allow-lan: true
+log-level: warning
+external-controller: 0.0.0.0:9090
+
+dns: # DNS server settings
+  enable: true
+  listen: 0.0.0.0:53
+  ipv6: true
+  default-nameserver:
+    - 119.29.29.29
+  enhanced-mode: fake-ip # or redir-host
+  fake-ip-range: 198.18.0.1/16 # Fake IP addresses pool CIDR
+  # use-hosts: true # lookup hosts and return IP record
+  fake-ip-filter:
+    - '*.lan'
+    - '+.srv.nintendo.net'
+    - '+.stun.playstation.net'
+    - '+.msftconnecttest.com'
+    - '+.msftncsi.com'
+    - '+.xboxlive.com'
+    - '*.battlenet.com.cn'
+    - '*.battlenet.com'
+    - '*.blzstatic.cn'
+    - '*.battle.net'
+    - 'xbox.*.microsoft.com'
+    - 'msftconnecttest.com'
+    - 'localhost.ptlogin2.qq.com'
+  nameserver: # 国内域名使用 nameserver 请求
+    - https://doh.pub/dns-query #腾讯DNS
+    - https://dns.alidns.com/dns-query #阿里DNS
+    # - 119.29.29.29
+  fallback: # 国外域名使用 fallback 请求 (没有被污染的DNS)
+    - https://cloudflare-dns.com/dns-query #Cloudflare DNS
+    - https://doh.dns.sb/dns-query #DNS.SB
+  fallback-filter: # fallback请求过滤
+    geoip: true
+    ipcidr:
+      - 240.0.0.0/4
+    domain:
+      - '+.google.com'
+      - '+.youtube.com'
+
+# tun: # https://github.com/Dreamacro/clash/wiki/premium-core-features
+#   enable: true
+#   stack: system # or gvisor
+#   # dns-hijack:
+#   #   - 8.8.8.8:53
+#   #   - tcp://8.8.8.8:53
+#   auto-route: true # auto set global route
+#   auto-detect-interface: true # conflict with interface-name
+
+# 支持的协议及加密算法 示例请查阅 Clash 项目 wiki 以使用最新格式
+# https://github.com/Dreamacro/clash/wiki/configuration
+proxies:
+  # - name: "vmess"
+  # type: vmess
+  # server: server
+  # port: 443
+  # ...
+
+# 服务器节点订阅 示例请查阅 Clash 项目 wiki 以使用最新格式
+# https://github.com/Dreamacro/clash/wiki/configuration#proxy-providers
+proxy-providers:
+  # 订阅转换 https://sub.dler.io/
+  # 模式设置: 进阶模式
+  # 订阅链接: 你的机场订阅地址
+  # 客户端: Clash
+  # 输出为 Node List
+  # 生成订阅链接
+  Subscription: #「节点订阅」
+    type: http
+    url: '此处填写转换后的订阅链接'
+    interval: 86400
+    path: ./Proxy/Subscription.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://cp.cloudflare.com/generate_204
+
+# 策略组 示例请查阅 Clash 项目 wiki 以使用最新格式
+# https://github.com/Dreamacro/clash/wiki/configuration#proxy-groupson
+proxy-groups:
+  - name: 'Proxies'
+    type: select
+    proxies:
+      - Url-Test
+      - Manual
+
+  - name: 'Url-Test'
+    type: url-test
+    use:
+      - Subscription # 「proxy-providers」-> Subscription
+
+  - name: 'Manual'
+    type: select
+    use:
+      - Subscription # 「proxy-providers」-> Subscription
+
+  - name: 'Match'
+    type: select
+    proxies:
+      - Proxies
+      - DIRECT
+
+# 关于 Rule Provider
+# https://lancellc.gitbook.io/clash/clash-config-file/rule-provider
+rule-providers:
+  StreamingCN:
+    type: http
+    behavior: classical
+    path: ./RuleSet/StreamingCN.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/SteamCN/SteamCN.yaml
+    interval: 86400
+
+  Streaming:
+    type: http
+    behavior: classical
+    path: ./RuleSet/Streaming.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Steam/Steam.yaml
+    interval: 86400
+
+  GlobalDomain:
+    type: http
+    behavior: domain
+    path: ./RuleSet/GlobalDomain.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Global/Global_Domain.yaml
+    interval: 86400
+
+  Global:
+    type: http
+    behavior: classical
+    path: ./RuleSet/Global.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Global/Global.yaml
+    interval: 86400
+
+  ChinaDomain:
+    type: http
+    behavior: domain
+    path: ./RuleSet/ChinaDomain.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/China/China_Domain.yaml
+    interval: 86400
+
+  China:
+    type: http
+    behavior: classical
+    path: ./RuleSet/China.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/China/China.yaml
+    interval: 86400
+
+  Lan:
+    type: http
+    behavior: classical
+    path: ./RuleSet/Lan.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Lan/Lan.yaml
+    interval: 86400
+
+
+# 规则 示例请查阅 Clash 项目 wiki 以使用最新格式
+# https://github.com/Dreamacro/clash/wiki/configuration#rules
+rules:
+  # Steaming
+  - RULE-SET,StreamingCN,DIRECT
+  - RULE-SET,Streaming,Proxies
+
+  # Global Area Network
+  - RULE-SET,GlobalDomain,Proxies
+  - RULE-SET,Global,Proxies
+
+  # China Area Network
+  - RULE-SET,ChinaDomain,DIRECT
+  - RULE-SET,China,DIRECT
+
+  # Local Area Network
+  - RULE-SET,Lan,DIRECT
+
+  # GeoIP China
+  - GEOIP,CN,DIRECT
+
+  # Final
+  - MATCH,Match
