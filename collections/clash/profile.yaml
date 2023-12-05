@@ -108,6 +108,13 @@ proxy-groups:
 # 关于 Rule Provider
 # https://lancellc.gitbook.io/clash/clash-config-file/rule-provider
 rule-providers:
+  Apple:
+    type: http
+    behavior: classical
+    path: ./RuleSet/Apple.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Apple/Apple_Classical.yaml
+    interval: 86400
+
   StreamingCN:
     type: http
     behavior: classical
@@ -161,15 +168,18 @@ rule-providers:
 # 规则 示例请查阅 Clash 项目 wiki 以使用最新格式
 # https://github.com/Dreamacro/clash/wiki/configuration#rules
 rules:
+  # Apple
+  - RULE-SET,Apple,DIRECT
+
   # Steaming
   - RULE-SET,StreamingCN,DIRECT
   - RULE-SET,Streaming,Proxies
 
-  # Global Area Network
+  # Global Network
   - RULE-SET,GlobalDomain,Proxies
   - RULE-SET,Global,Proxies
 
-  # China Area Network
+  # China Network
   - RULE-SET,ChinaDomain,DIRECT
   - RULE-SET,China,DIRECT
 
@@ -179,5 +189,5 @@ rules:
   # GeoIP China
   - GEOIP,CN,DIRECT
 
-  # Final
+  # Unmatched
   - MATCH,Match
