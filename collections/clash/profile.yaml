@@ -115,18 +115,18 @@ rule-providers:
     url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Apple/Apple_Classical.yaml
     interval: 86400
 
-  StreamingCN:
+  GlobalMediaDomain:
     type: http
-    behavior: classical
-    path: ./RuleSet/StreamingCN.yaml
-    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/SteamCN/SteamCN.yaml
+    behavior: domain
+    path: ./RuleSet/GlobalMediaDomain.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/GlobalMedia/GlobalMedia_Domain.yaml
     interval: 86400
-
-  Streaming:
+    
+  GlobalMedia:
     type: http
     behavior: classical
-    path: ./RuleSet/Streaming.yaml
-    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/Steam/Steam.yaml
+    path: ./RuleSet/GlobalMedia.yaml
+    url: https://fastly.jsdelivr.net/gh/blackmatrix7/ios_rule_script@release/rule/Clash/GlobalMedia/GlobalMedia.yaml
     interval: 86400
 
   GlobalDomain:
@@ -171,9 +171,9 @@ rules:
   # Apple
   - RULE-SET,Apple,DIRECT
 
-  # Steaming
-  - RULE-SET,StreamingCN,DIRECT
-  - RULE-SET,Streaming,Proxies
+  # Global Media
+  - RULE-SET,GlobalMediaDomain,Proxies
+  - RULE-SET,GlobalMedia,Proxies
 
   # Global Network
   - RULE-SET,GlobalDomain,Proxies
